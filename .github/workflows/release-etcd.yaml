@@ -1,0 +1,61 @@
+name: Release-etcd
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      etcd_version:
+        description: "etcd version"
+        required: true
+        default: "3.5.9"
+
+jobs:
+  publish_etcd:
+    name: Publish etcd
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare artifacts
+        run: |
+          ETCD_VER=v${{ inputs.etcd_version }}
+          
+          NAME=etcd-$ETCD_VER-linux-arm64
+          curl -LO https://github.com/etcd-io/etcd/releases/download/$ETCD_VER/$NAME.tar.gz
+          tar xvf $NAME.tar.gz
+          mv ./$NAME/etcd fluvio-etcd
+          tar czf fluvio-etcd.aarch64-unknown-linux-gnu.tar.gz fluvio-etcd
+          rm fluvio-etcd
+
+          NAME=etcd-$ETCD_VER-linux-amd64
+          curl -LO https://github.com/etcd-io/etcd/releases/download/$ETCD_VER/$NAME.tar.gz
+          tar xvf $NAME.tar.gz
+          mv ./$NAME/etcd fluvio-etcd
+          tar czf fluvio-etcd.x86_64-unknown-linux-gnu.tar.gz fluvio-etcd
+          rm fluvio-etcd
+
+          NAME=etcd-$ETCD_VER-darwin-arm64
+          curl -LO https://github.com/etcd-io/etcd/releases/download/$ETCD_VER/$NAME.zip
+          unzip $NAME.zip
+          mv ./$NAME/etcd fluvio-etcd
+          tar czf fluvio-etcd.aarch64-apple-darwin.tar.gz fluvio-etcd
+          rm fluvio-etcd
+
+          NAME=etcd-$ETCD_VER-darwin-amd64
+          curl -LO https://github.com/etcd-io/etcd/releases/download/$ETCD_VER/$NAME.zip
+          unzip $NAME.zip
+          mv ./$NAME/etcd fluvio-etcd
+          tar czf fluvio-etcd.x86_64-apple-darwin.tar.gz fluvio-etcd
+          rm fluvio-etcd
+      - name: Upload artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          tag_name: "etcd/v${{ inputs.etcd_version }}"  
+          files: |
+            fluvio-etcd.x86_64-unknown-linux-gnu.tar.gz
+            fluvio-etcd.aarch64-unknown-linux-gnu.tar.gz
+            fluvio-etcd.x86_64-apple-darwin.tar.gz
+            fluvio-etcd.aarch64-apple-darwin.tar.gz
+
