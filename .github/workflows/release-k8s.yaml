@@ -32,18 +32,26 @@ jobs:
       - name: Prepare artifacts
         run: |
           mv ./kubernetes/_output/local/bin/linux/amd64/kube-apiserver fluvio-k8s
-          zip fluvio-k8s-x86_64-unknown-linux-gnu.zip fluvio-k8s
+          TARGET=x86_64-unknown-linux-gnu
+          echo $TARGET > .target
+          zip fluvio-k8s-$TARGET.zip fluvio-k8s .target
           rm fluvio-k8s
 
           mv ./kubernetes/_output/local/bin/linux/arm64/kube-apiserver fluvio-k8s
-          zip fluvio-k8s-aarch64-unknown-linux-gnu.zip fluvio-k8s
+          TARGET=aarch64-unknown-linux-gnu
+          echo $TARGET > .target
+          zip fluvio-k8s-$TARGET.zip fluvio-k8s .target
           rm fluvio-k8s
 
           mv ./kubernetes/_output/local/bin/darwin/amd64/kube-apiserver  fluvio-k8s
-          zip fluvio-k8s-x86_64-apple-darwin.zip fluvio-k8s
+          TARGET=x86_64-apple-darwin
+          echo $TARGET > .target
+          zip fluvio-k8s-$TARGET.zip fluvio-k8s .target
 
           mv ./kubernetes/_output/local/bin/darwin/arm64/kube-apiserver fluvio-k8s
-          zip fluvio-k8s-aarch64-apple-darwin.zip fluvio-k8s
+          TARGET=aarch64-apple-darwin
+          echo $TARGET > .target
+          zip fluvio-k8s-$TARGET.zip fluvio-k8s .target
       - name: Upload artifacts
         uses: softprops/action-gh-release@v1
         with:
